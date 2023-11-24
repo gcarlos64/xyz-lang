@@ -1,0 +1,4 @@
+examples
+*.tab.[ch]
+*.yy.c
+xyz
