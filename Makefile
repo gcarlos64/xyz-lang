@@ -5,7 +5,7 @@ CFLAGS := -Wall -g
 LDFLAGS +=
 
 xyz: xyz.o symtab.o
-	$(CC) $(LDFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
 
 xyz.o: xyz.tab.c
 	$(CC) $(CFLAGS) -c -o $@ $<
