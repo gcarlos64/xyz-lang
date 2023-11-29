@@ -3,16 +3,21 @@ YACC := bison
 LEX := flex
 CFLAGS := -Wall -g
 LDFLAGS +=
-PROJ := xyz
 
-$(PROJ): $(PROJ).tab.c $(PROJ).yy.c
-	$(CC) $< $(CFLAGS) -o $@ $(LDFLAGS)
+xyz: xyz.o symtab.o
+	$(CC) $(LDFLAGS) -o $@ $^
 
-$(PROJ).tab.h $(PROJ).tab.c: $(PROJ).y
+xyz.o: xyz.tab.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+symtab.o: symtab.c symtab.h
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+xyz.tab.c: xyz.y xyz.yy.c
 	$(YACC) -d $<
 
-$(PROJ).yy.c: $(PROJ).l $(PROJ).tab.h
+xyz.yy.c: xyz.l
 	$(LEX) -o $@ $<
 
 clean:
-	$(RM) $(PROJ).yy.c $(PROJ).tab.c $(PROJ).tab.h $(PROJ)
+	$(RM) *.o xyz.yy.c xyz.tab.c xyz.tab.h xyz
