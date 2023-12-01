@@ -5,33 +5,33 @@
 
 static inline struct var_symtab *init_var_symtab(void)
 {
-	struct var_symtab *vs = (struct var_symtab *)malloc(sizeof(struct var_symtab));
-	vs->count = 0;
-	return vs;
+	struct var_symtab *vst = (struct var_symtab *)malloc(sizeof(struct var_symtab));
+	vst->count = 0;
+	return vst;
 }
 
 static struct symtab *init_symtab(void)
 {
-	struct symtab *s = (struct symtab *)malloc(sizeof(struct symtab));
-	s->count = 0;
-	return s;
+	struct symtab *st = (struct symtab *)malloc(sizeof(struct symtab));
+	st->count = 0;
+	return st;
 }
 
-void symtab_install_var(struct var_symtab **vs, char *name, char *type)
+void symtab_install_var(struct var_symtab **vst, char *name, char *type)
 {
 	struct symbol *sym;
 
-	if (!*vs)
-		*vs = init_var_symtab();
+	if (!*vst)
+		*vst = init_var_symtab();
 
-	if (!symtab_lookup_var(*vs, name)) {
-		if ((*vs)->count == MAXSYMS) {
+	if (!symtab_lookup_var(*vst, name)) {
+		if ((*vst)->count == MAXSYMS) {
 			yyerror("more than %ud variables was declared on the same scope",
 				MAXSYMS);
 			exit(1);
 		}
 
-		sym = &(*vs)->syms[(*vs)->count++];
+		sym = &(*vst)->syms[(*vst)->count++];
 		sym->name = strdup(name);
 		sym->type = strdup(type);
 	} else {
@@ -41,37 +41,37 @@ void symtab_install_var(struct var_symtab **vs, char *name, char *type)
 	}
 }
 
-void symtab_install_function(struct symtab **s, struct var_symtab **vs,
+void symtab_install_function(struct symtab **st, struct var_symtab **vst,
                              char *name, char *type)
 {
 	struct fsymbol *fsym;
 
-	if (!*s)
-		*s = init_symtab();
+	if (!*st)
+		*st = init_symtab();
 
-	if (!symtab_lookup_function(*s, name)) {
-		if ((*s)->count == MAXSYMS) {
+	if (!symtab_lookup_function(*st, name)) {
+		if ((*st)->count == MAXSYMS) {
 			yyerror("more than %ud functions was declared\n", MAXSYMS);
 			exit(1);
 		}
 
-		fsym = &(*s)->fsyms[(*s)->count++];
+		fsym = &(*st)->fsyms[(*st)->count++];
 		fsym->sym.name = strdup(name);
 		fsym->sym.type = strdup(type);
-		fsym->var_syms = *vs;
-		*vs = NULL;
+		fsym->var_syms = *vst;
+		*vst = NULL;
 	} else {
 		yyerror("multiple definitions of function \"%s\"\n", name);
 		exit(1);
 	}
 }
 
-struct fsymbol *symtab_lookup_function(struct symtab *s, char *name)
+struct fsymbol *symtab_lookup_function(struct symtab *st, char *name)
 {
-	struct fsymbol *fsym = s->fsyms;
+	struct fsymbol *fsym = st->fsyms;
 	unsigned int i = 0;
 
-	if (s->count == 0)
+	if (st->count == 0)
     		return NULL;
 
     	do {
@@ -79,17 +79,17 @@ struct fsymbol *symtab_lookup_function(struct symtab *s, char *name)
     			return fsym;
 		fsym++;
 		i++;
-	} while (i < s->count);
+	} while (i < st->count);
 
 	return NULL;
 }
 
-struct symbol *symtab_lookup_var(struct var_symtab *vs, char *name)
+struct symbol *symtab_lookup_var(struct var_symtab *vst, char *name)
 {
-	struct symbol *sym = vs->syms;
+	struct symbol *sym = vst->syms;
 	unsigned int i = 0;
 
-	if (vs->count == 0)
+	if (vst->count == 0)
     		return NULL;
 
     	do {
@@ -97,22 +97,22 @@ struct symbol *symtab_lookup_var(struct var_symtab *vs, char *name)
     			return sym;
 		sym++;
 		i++;
-	} while (i < vs->count);
+	} while (i < vst->count);
 
 	return NULL;
 }
 
-void symtab_print(struct symtab *s)
+void symtab_print(struct symtab *st)
 {
 	struct fsymbol *fsym;
 	struct symbol *vsym;
 	int i, j;
 
-	if (!s || !s->count)
+	if (!st || !st->count)
     		return;
 
-	fsym = s->fsyms;
-	for (i = 0; i < s->count; i++, fsym++) {
+	fsym = st->fsyms;
+	for (i = 0; i < st->count; i++, fsym++) {
     		printf("%s [%s]\n", fsym->sym.name, fsym->sym.type);
 
 		if (!fsym->var_syms)

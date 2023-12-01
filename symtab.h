@@ -36,10 +36,10 @@ struct symtab {
 	unsigned short count;
 };
 
-void symtab_install_var(struct var_symtab **vs, char *name, char *type);
-void symtab_install_function(struct symtab **s, struct var_symtab **vs, char *name, char *type);
-struct fsymbol *symtab_lookup_function(struct symtab *s, char *name);
-struct symbol *symtab_lookup_var(struct var_symtab *vs, char *name);
-void symtab_print(struct symtab *s);
+void symtab_install_var(struct var_symtab **vst, char *name, char *type);
+void symtab_install_function(struct symtab **st, struct var_symtab **vst, char *name, char *type);
+struct fsymbol *symtab_lookup_function(struct symtab *st, char *name);
+struct symbol *symtab_lookup_var(struct var_symtab *vst, char *name);
+void symtab_print(struct symtab *st);
 
 #endif
