@@ -32,8 +32,8 @@ void symtab_install_var(struct var_symtab **vs, char *name, char *type)
 		}
 
 		sym = &(*vs)->syms[(*vs)->count++];
-		strncpy(sym->name, name, MAXNAME);
-		strncpy(sym->type, type, MAXTYPE);
+		sym->name = strdup(name);
+		sym->type = strdup(type);
 	} else {
 		yyerror("multiple definitions of var \"%s\" on the same scope",
 			name);
@@ -51,17 +51,17 @@ void symtab_install_function(struct symtab **s, struct var_symtab **vs,
 
 	if (!symtab_lookup_function(*s, name)) {
 		if ((*s)->count == MAXSYMS) {
-			yyerror("more than %ud functions was declared", MAXSYMS);
+			yyerror("more than %ud functions was declared\n", MAXSYMS);
 			exit(1);
 		}
 
 		fsym = &(*s)->fsyms[(*s)->count++];
-		strncpy(fsym->sym.name, name, MAXNAME);
-		strncpy(fsym->sym.type, type, MAXTYPE);
+		fsym->sym.name = strdup(name);
+		fsym->sym.type = strdup(type);
 		fsym->var_syms = *vs;
 		*vs = NULL;
 	} else {
-		yyerror("multiple definitions of function \"%\"", name);
+		yyerror("multiple definitions of function \"%s\"\n", name);
 		exit(1);
 	}
 }
@@ -75,7 +75,7 @@ struct fsymbol *symtab_lookup_function(struct symtab *s, char *name)
     		return NULL;
 
     	do {
-		if (!strncmp(fsym->sym.name, name, MAXNAME))
+		if (!strcmp(fsym->sym.name, name))
     			return fsym;
 		fsym++;
 		i++;
@@ -93,7 +93,7 @@ struct symbol *symtab_lookup_var(struct var_symtab *vs, char *name)
     		return NULL;
 
     	do {
-		if (!strncmp(sym->name, name, MAXNAME))
+		if (!strcmp(sym->name, name))
     			return sym;
 		sym++;
 		i++;
@@ -108,7 +108,7 @@ void symtab_print(struct symtab *s)
 	struct symbol *vsym;
 	int i, j;
 
-	if (!s->count)
+	if (!s || !s->count)
     		return;
 
 	fsym = s->fsyms;

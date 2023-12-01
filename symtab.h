@@ -3,11 +3,7 @@
 
 extern int yyerror(const char *msg, ...);
 
-#define MAXNAME 31
 #define MAXSYMS 32
-
-/* This limits function to take up to 9 arguments. */
-#define MAXTYPE 31
 
 struct symbol {
 	/*
@@ -15,9 +11,9 @@ struct symbol {
 	 * and f(i64,f64) to denote a function that takes two
 	 * arguments, respectively of type i64 and f64.
 	 */
-	char type[MAXTYPE+1];
+	char *type;
 
-	char name[MAXNAME+1];
+	char *name;
 };
 
 /* Symbol table for variables only */
