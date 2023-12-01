@@ -1,4 +1,5 @@
 examples
 *.tab.[ch]
 *.yy.c
+*.o
 xyz
