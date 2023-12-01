@@ -24,10 +24,10 @@ int yydebug = 1;
 }
 
 %token CONST_INT CONST_FLOAT
-%token IDENTIFIER FN VAR
+%token ID FN VAR
 %token INC_OP DEC_OP LE_OP GE_OP EQ_OP NE_OP AND_OP OR_OP
 %token IF ELSE WHILE RETURN
-%token I64 F64
+%token T_I64 T_F64
 
 %start program
 %%
@@ -37,16 +37,16 @@ program
 	;
 
 assignment
-	: IDENTIFIER '=' expression ';'
+	: ID '=' expression ';'
 	;
 
 type_specifier
-	: I64
-	| F64
+	: T_I64
+	| T_F64
 	;
 
 declaration_assignment
-	: IDENTIFIER ':' type_specifier '=' expression ';'
+	: ID ':' type_specifier '=' expression ';'
 	;
 
 declaration_assignment_list
@@ -87,7 +87,7 @@ statement_list
 	;
 
 parameter_declaration
-	: IDENTIFIER type_specifier
+	: ID type_specifier
 	;
 
 parameter_list
@@ -103,8 +103,8 @@ compound_statement
 	;
 
 function_declaration
-	: FN IDENTIFIER '(' parameter_list ')' compound_statement
-	| FN IDENTIFIER '(' ')' compound_statement
+	: FN ID '(' parameter_list ')' compound_statement
+	| FN ID '(' ')' compound_statement
 	;
 
 function_declaration_list
@@ -113,7 +113,7 @@ function_declaration_list
 	;
 
 primary_expression 
-	: IDENTIFIER
+	: ID
 	| CONST_INT
 	| CONST_FLOAT
 	;
