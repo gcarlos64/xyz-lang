@@ -8,12 +8,12 @@ extern int yyerror (char const *msg, ...);
 
 ID		[a-zA-Z][a-zA-Z_]*
 CONST_INT	0|[1-9][0-9]*
-CONST_FLOAT	{CONST_INT}.[0-9]*(E[+-]?{CONST_INT})?
+CONST_FLOAT	{CONST_INT}\.[0-9]*(E[+-]?{CONST_INT})?
 
 %option noyywrap nodefault yylineno
 %%
-"i64"		{ return T_I64; }
-"f64"		{ return T_F64; }
+"i64"		{ yylval.s = strdup(yytext); return T_I64; }
+"f64"		{ yylval.s = strdup(yytext); return T_F64; }
 "if"		{ return IF; }
 "else"		{ return ELSE; }
 "while"		{ return WHILE; }
@@ -23,6 +23,10 @@ CONST_FLOAT	{CONST_INT}.[0-9]*(E[+-]?{CONST_INT})?
 {CONST_INT}	{ yylval.i = atoi(yytext); return CONST_INT; }
 {CONST_FLOAT}	{ yylval.f = atof(yytext); return CONST_FLOAT; }
 {ID}		{ yylval.s = strdup(yytext); return ID; }
+","		{ return yytext[0]; }
+"="		{ return yytext[0]; }
+":"		{ return yytext[0]; }
+";"		{ return yytext[0]; }
 "("		{ return yytext[0]; }
 ")"		{ return yytext[0]; }
 "{"		{ return yytext[0]; }
