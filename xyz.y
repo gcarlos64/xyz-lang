@@ -127,8 +127,15 @@ function_declaration_list
 	| function_declaration_list function_declaration
 	;
 
+argument_expression_list
+	: expression
+	| argument_expression_list ',' expression
+	;
+
 primary_expression 
 	: ID
+	| ID '(' ')'
+	| ID '(' argument_expression_list ')'
 	| CONST_INT
 	| CONST_FLOAT
 	| '(' expression ')'
