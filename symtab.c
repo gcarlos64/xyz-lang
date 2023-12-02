@@ -26,7 +26,7 @@ void symtab_install_var(struct var_symtab **vst, char *name, char *type)
 
 	if (!symtab_lookup_var(*vst, name)) {
 		if ((*vst)->count == MAXSYMS) {
-			yyerror("more than %ud variables was declared on the same scope",
+			yyerror("more than %ud variables was declared on the same scope\n",
 				MAXSYMS);
 			exit(1);
 		}
@@ -35,7 +35,7 @@ void symtab_install_var(struct var_symtab **vst, char *name, char *type)
 		sym->name = strdup(name);
 		sym->type = strdup(type);
 	} else {
-		yyerror("multiple definitions of var \"%s\" on the same scope",
+		yyerror("multiple definitions of var \"%s\" on the same scope\n",
 			name);
 		exit(1);
 	}
