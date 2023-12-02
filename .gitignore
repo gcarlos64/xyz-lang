@@ -2,5 +2,5 @@ examples
 *.tab.[ch]
 *.yy.c
 *.o
-xyz
+xyz*
 .gdb_history
