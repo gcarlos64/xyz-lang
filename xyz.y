@@ -2,13 +2,14 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "symtab.h"
 
 extern int yylex();
 extern int yyerror(const char *msg, ...);
 
-struct symtab *s = NULL;
-struct var_symtab *vs = NULL;
+struct symtab *st = NULL;
+struct var_symtab *vst = NULL;
 
 /*
 * To debug, run `bison --verbose --debug -d file.y`
@@ -23,11 +24,14 @@ int yydebug = 1;
 	char *s;
 }
 
-%token CONST_INT CONST_FLOAT
-%token ID FN VAR
+%token <i> CONST_INT
+%token <f> CONST_FLOAT
+%token <s> ID T_I64 T_F64
 %token INC_OP DEC_OP LE_OP GE_OP EQ_OP NE_OP AND_OP OR_OP
 %token IF ELSE WHILE RETURN
-%token T_I64 T_F64
+%token FN VAR
+
+%type <s> type_specifier parameter_declaration parameter_list
 
 %start program
 %%
@@ -36,36 +40,41 @@ program
 	: function_declaration_list
 	;
 
-assignment
-	: ID '=' expression ';'
-	;
-
 type_specifier
 	: T_I64
 	| T_F64
 	;
 
 declaration_assignment
-	: ID ':' type_specifier '=' expression ';'
+	: ID ':' type_specifier '=' expression { symtab_install_var(&vst, $1, $3); }
 	;
 
 declaration_assignment_list
 	: declaration_assignment
-	| declaration_assignment_list declaration_assignment
+	| declaration_assignment_list ',' declaration_assignment
 	;
 
 declaration_list
-	: VAR declaration_assignment_list
+	: VAR declaration_assignment_list ';'
+	;
+
+assignment_statement
+	: ID '=' expression_statement
+	;
+
+expression_statement
+	: ';'
+	| expression ';'
 	;
 
 statement
-	: expression
-	| assignment
+	: expression_statement
+	| assignment_statement
 	| selection_statement
 	| loop_statement
 	| compound_statement
 	| return_statement
-	:
+	;
 
 selection_statement
 	: IF expression compound_statement
@@ -77,22 +86,24 @@ loop_statement
 	;
 
 return_statement
-	: RETURN CONST_INT ';'
-	| RETURN expression ';'
+	: RETURN expression_statement
 	;
 
 statement_list
-	: statement ';'
+	: statement
 	| statement_list statement
 	;
 
 parameter_declaration
-	: ID type_specifier
+	: ID type_specifier { $$ = $2; symtab_install_var(&vst, $1, $2); }
 	;
 
 parameter_list
 	: parameter_declaration
-	| parameter_list ',' parameter_declaration
+	| parameter_list ',' parameter_declaration { char *s = malloc(strlen($1) + strlen($3) + 2);
+						     strcat(s, $1);
+						     strcat(s, ",");
+						     $$ = strcat(s, $3); }
 	;
 
 compound_statement
@@ -103,8 +114,12 @@ compound_statement
 	;
 
 function_declaration
-	: FN ID '(' parameter_list ')' compound_statement
-	| FN ID '(' ')' compound_statement
+	: FN ID '(' parameter_list ')' compound_statement { char *s = malloc(strlen($4) + 5);
+							    strcat(s, "fn(");
+							    strcat(s, $4);
+							    strcat(s, ")");
+							    symtab_install_function(&st, &vst, $2, s); }
+	| FN ID '(' ')' compound_statement { symtab_install_function(&st, &vst, $2, "fn()"); }
 	;
 
 function_declaration_list
@@ -116,6 +131,7 @@ primary_expression
 	: ID
 	| CONST_INT
 	| CONST_FLOAT
+	| '(' expression ')'
 	;
 
 postfix_expression
@@ -173,12 +189,8 @@ logical_or_expression
 	| logical_or_expression OR_OP logical_and_expression
 	;
 
-conditional_expression
-	: logical_or_expression
-	;
-
 expression
-	: conditional_expression
+	: logical_or_expression
 	;
 %%
 
@@ -213,7 +225,7 @@ int main (int argc, char **argv) {
 		yyparse();
 	} while(!feof(yyin));
 
-	symtab_print(s);
+	symtab_print(st);
 
 	return 0;
 }
