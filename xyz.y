@@ -109,17 +109,20 @@ parameter_list
 compound_statement
 	: '{' '}'
 	| '{' statement_list '}'
+
+function_compound_statement
+	: compound_statement
 	| '{' declaration_list '}'
 	| '{' declaration_list statement_list '}'
 	;
 
 function_declaration
-	: FN ID '(' parameter_list ')' compound_statement { char *s = malloc(strlen($4) + 5);
-							    strcat(s, "fn(");
-							    strcat(s, $4);
-							    strcat(s, ")");
-							    symtab_install_function(&st, &vst, $2, s); }
-	| FN ID '(' ')' compound_statement { symtab_install_function(&st, &vst, $2, "fn()"); }
+	: FN ID '(' parameter_list ')' function_compound_statement { char *s = malloc(strlen($4) + 5);
+								    strcat(s, "fn(");
+								    strcat(s, $4);
+								    strcat(s, ")");
+								    symtab_install_function(&st, &vst, $2, s); }
+	| FN ID '(' ')' function_compound_statement { symtab_install_function(&st, &vst, $2, "fn()"); }
 	;
 
 function_declaration_list
